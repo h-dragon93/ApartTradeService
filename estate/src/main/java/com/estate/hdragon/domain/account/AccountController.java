@@ -1,25 +1,18 @@
 package com.estate.hdragon.domain.account;
 
+import com.estate.hdragon.domain.account.kakao.KakaoConfig;
+import com.estate.hdragon.domain.account.kakao.KakaoProfile;
+import com.estate.hdragon.domain.account.kakao.KakaoToken;
 import com.estate.hdragon.domain.account.kakao.refreshToken.RefreshToken;
 import com.estate.hdragon.domain.account.kakao.refreshToken.RefreshTokenRedisRepository;
 import com.estate.hdragon.infra.common.CommonConfig;
 import lombok.RequiredArgsConstructor;
-
-import com.estate.hdragon.domain.account.kakao.KakaoConfig;
-import com.estate.hdragon.domain.account.kakao.KakaoProfile;
-import com.estate.hdragon.domain.account.kakao.KakaoToken;
-
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
-import org.springframework.web.servlet.ModelAndView;
-import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.springframework.web.servlet.view.RedirectView;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -27,6 +20,7 @@ import javax.servlet.http.HttpSession;
 import java.time.LocalDate;
 import java.util.Optional;
 
+@Slf4j
 @Controller
 @RequestMapping("/login")
 @RequiredArgsConstructor
@@ -89,7 +83,7 @@ public class AccountController {
 
             session.setAttribute(CommonConfig.USER_SESSION_KEY, kakaoToken.getRefresh_token());
 
-            System.out.println(session.getAttribute(CommonConfig.USER_SESSION_KEY));// 세션에 재발급 토큰을 저장
+            log.info("session : ", session.getAttribute(CommonConfig.USER_SESSION_KEY));// 세션에 재발급 토큰을 저장
 
             return "redirect:/";
 
