@@ -1,0 +1,15 @@
+server:
+  port: 11112
+
+spring:
+  application:
+    name: resources
+  profiles:
+    active: native
+  cloud:
+    config:
+      server:
+        git:
+          uri: file:///C:/Users/HanYong/Desktop/Project/estate/hdragon/resource/src/main/resources
+  autoconfigure:
+    exclude: org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration

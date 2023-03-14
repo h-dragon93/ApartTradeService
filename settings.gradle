@@ -1,0 +1,5 @@
+rootProject.name = 'hdragon'
+include 'batch'
+include 'configserver'
+include 'estate'
+

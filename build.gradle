@@ -1,0 +1,140 @@
+// 빌드 시
+buildscript {
+	ext {
+		springBootVersion = '2.7.7'
+	}
+	repositories {
+		mavenCentral()
+	}
+	dependencies {
+		classpath ("org.springframework.boot:spring-boot-gradle-plugin:${springBootVersion}")
+		classpath "io.spring.gradle:dependency-management-plugin:1.0.15.RELEASE"
+	}
+}
+
+// 전체 프로젝트 공통 세팅
+allprojects {
+	apply plugin: 'java'
+	apply plugin: 'idea'
+	apply plugin: 'org.springframework.boot'
+	apply plugin: 'io.spring.dependency-management'
+
+	group 'com.estate'
+	version '0.0.1-SNAPSHOT'
+
+	sourceCompatibility = '1.8'
+	targetCompatibility = '1.8'
+	compileJava.options.encoding = 'UTF-8'
+
+	repositories {
+		mavenCentral()
+	}
+
+	configurations {
+		compileOnly {
+			extendsFrom annotationProcessor
+		}
+	}
+
+	dependencies {
+
+//	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+//	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+//	implementation 'org.springframework.session:spring-session-data-redis'
+
+
+	}
+
+	test {
+		useJUnitPlatform()
+	}
+}
+
+// 하위 모듈에서 공통으로 사용하는 세팅 추가
+//subprojects {
+//	apply plugin: 'java'
+//	apply plugin: 'org.springframework.boot'
+//	apply plugin: 'io.spring.dependency-management'
+//
+//	dependencies {
+//		developmentOnly 'org.springframework.boot:spring-boot-devtools'
+//		implementation 'org.springframework.boot:spring-boot-starter-web'
+//		implementation 'org.springframework.boot:spring-boot-starter-security'
+//		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+//		implementation 'org.springframework.boot:spring-boot-starter-thymeleaf'
+//
+//		implementation 'com.h2database:h2:1.4.200'
+//
+//		compileOnly 'org.projectlombok:lombok'
+//		annotationProcessor 'org.projectlombok:lombok'
+//
+//		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//		testImplementation 'org.springframework.restdocs:spring-restdocs-mockmvc'
+//		testImplementation 'org.springframework.security:spring-security-test'
+//
+//		implementation 'io.jsonwebtoken:jjwt:0.9.1'
+//	}
+//}
+
+project(':estate') {
+	dependencies {
+		implementation 'org.springframework.boot:spring-boot-starter-data-jdbc'
+		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+		implementation 'org.springframework.boot:spring-boot-starter-data-rest'
+  	    implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+		implementation 'org.springframework.boot:spring-boot-starter-mustache'
+//	implementation 'org.springframework.boot:spring-boot-starter-validation'
+		implementation 'org.springframework.boot:spring-boot-starter-actuator'
+		implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-config', version: '3.1.1'
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+		implementation 'org.springframework.boot:spring-boot-starter-web-services'
+		implementation group: 'org.json', name: 'json', version: '20090211'
+		compileOnly 'org.projectlombok:lombok'
+		developmentOnly 'org.springframework.boot:spring-boot-devtools'
+		runtimeOnly 'com.mysql:mysql-connector-j'
+		annotationProcessor 'org.projectlombok:lombok'
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+//		testImplementation 'io.projectreactor:reactor-test'
+		testImplementation 'org.springframework.batch:spring-batch-test'
+	}
+}
+
+// 모듈 개별 의존성
+project(':batch') {
+	dependencies {
+		compileOnly project(':estate')
+		implementation 'org.springframework.boot:spring-boot-starter-batch'
+		implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+		implementation 'org.springframework.boot:spring-boot-starter-actuator'
+		implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+		implementation group: 'org.javassist', name: 'javassist', version: '3.15.0-GA'
+		implementation group: 'org.springframework.cloud', name: 'spring-cloud-starter-config', version: '3.1.1'
+		implementation 'org.json:json:20200518'
+		compileOnly 'org.projectlombok:lombok'
+		runtimeOnly 'mysql:mysql-connector-java'
+		annotationProcessor 'org.projectlombok:lombok'
+		testImplementation 'org.springframework.boot:spring-boot-starter-test'
+		testImplementation 'org.springframework.batch:spring-batch-test'
+	}
+}
+
+// 모듈 개별 의존성
+project(':configserver') {
+	dependencies {
+		compileOnly project(':estate')
+		//implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+		implementation 'org.springframework.boot:spring-boot-starter-web'
+		implementation group: 'org.springframework.cloud', name: 'spring-cloud-config-server', version: '3.1.1'
+		implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	}
+}
+
+bootJar {
+	enabled = false
+}
+jar {
+	enabled = true
+}
+
+
+

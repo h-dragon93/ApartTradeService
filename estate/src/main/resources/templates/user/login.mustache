@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="kr">
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<meta charset="utf-8">
+<head>
+{{>include/header}}
+</head>
+<body>
+{{>include/navigation}}
+	<div class="container" id="main">
+		<div class="col-md-6 col-md-offset-3">
+			<div class="panel panel-default content-main">
+				{{#errorMessage}}
+			    <div class="alert alert-danger" role="alert">{{this}}</div>	
+				{{/errorMessage}}
+				<form name="question" method="post" action="/users/login">
+					<div class="form-group">
+						<label for="userId">사용자 아이디</label> 
+						<input class="form-control" id="userId" name="userId" placeholder="User ID">
+					</div>
+					<div class="form-group">
+						<label for="password">비밀번호</label> 
+						<input type="password" class="form-control" id="password" name="password" placeholder="Password">
+					</div>
+					<button type="submit" class="btn btn-success clearfix pull-right">로그인</button>
+					<div class="clearfix" />
+				</form>
+                <form name="question" method="get" action="/login/signin">
+                    <button type="submit" class="btn btn-primary clearfix pull-left">회원가입</button>
+                </form>
+			</div>
+		</div>
+        <div>
+            <a id="custom-login-btn" href="javascript:loginWithKakao()">
+                <img src="//k.kakaocdn.net/14/dn/btqCn0WEmI3/nijroPfbpCa4at5EIsjyf0/o.jpg" width="222" />
+            </a>
+        </div>
+	</div>	
+
+<script type="text/javascript">
+
+
+</script>
+{{>include/footer}}
+</body>
+</html>
