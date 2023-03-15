@@ -1,5 +1,6 @@
 package com.estate.hdragon.domain.account.kakao.refreshToken;
 
+import lombok.ToString;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.redis.core.RedisHash;
 
@@ -7,7 +8,8 @@ import org.springframework.data.redis.core.RedisHash;
 
 
 // Redis 저장을 위한 객체
-@RedisHash(value = "refreshToken", timeToLive = 600)
+//@RedisHash(value = "refreshToken", timeToLive = 600) jpa repository 사용시 사용
+@ToString
 public class RefreshToken {
 
     @Id

@@ -73,6 +73,7 @@ public class AccountController {
             if (!account.isPresent()) { // DB에 kakao UID가 없으면 자동 회원가입
                 Account newAccount = makeNewAccount(kakaoProfile, kakaoUniqueId);
                 accountService.saveAccount(newAccount); //builder로 save 하는 부분은 나중에 리팩토링하자
+                account =  accountService.getAccountByKakaoUID(kakaoUniqueId);
             }
             else {
                 // To-Do 이미 등록된 kakao unique ID 이면
@@ -81,9 +82,13 @@ public class AccountController {
             RefreshToken refreshToken = new RefreshToken(kakaoToken.getRefresh_token(), kakaoUniqueId);     // 리프레시 토큰 생성
             refreshTokenRedisRepository.save(refreshToken);                                                 // Redis 저장
 
-            session.setAttribute(CommonConfig.USER_SESSION_KEY, kakaoToken.getRefresh_token());
+            session.setAttribute(CommonConfig.USER_SESSION_ID, kakaoToken.getRefresh_token());
 
-            log.info("session : ", session.getAttribute(CommonConfig.USER_SESSION_KEY));// 세션에 재발급 토큰을 저장
+            System.out.println("session id : " + session.getId());
+            System.out.println("session : " + session.getAttribute(CommonConfig.USER_SESSION_ID));// 세션에 재발급 토큰을 저장
+            System.out.println(refreshToken.toString());
+            System.out.println(kakaoToken.toString());
+            System.out.println(account);
 
             return "redirect:/";
 
