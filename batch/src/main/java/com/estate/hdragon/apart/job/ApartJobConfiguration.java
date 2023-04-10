@@ -105,7 +105,7 @@ public class ApartJobConfiguration {
         return item -> {
             StringBuilder tradeInfo = new StringBuilder();
             try {
-                tradeInfo  = api.callApartInfo(item.getLawd_cd(),"202303");
+                tradeInfo  = api.callApartInfo(item.getLawd_cd(),"202304");
             } catch (Throwable e) {
                 e.printStackTrace();
             }
@@ -132,28 +132,7 @@ public class ApartJobConfiguration {
                                             .mapToObj(index -> (JSONObject) JsonItemArray.get(index))
                                             .collect(Collectors.toList());
                 }
-
-                ArrayList<AptTradeData> AptTradeList = new ArrayList<AptTradeData>();
-                
-                JsonItemList.forEach(arrayElement -> {                                                                          // 리팩토링 예정
-                    JSONObject clonedObject = new JSONObject(arrayElement, JSONObject.getNames(arrayElement)); // clone object  // for redis
-                    clonedObject = JsonObjectUtil.getRedisJsonObject(clonedObject);                                             // for redis
-                    AptTradeRedisData AptTradeRedisDataJson = null;                                                             // for redis 추후에 분리하자
-
-                    arrayElement =  JsonObjectUtil.getTranslatedJsonObject(arrayElement);
-                    String jsonString = arrayElement.toString();
-                    ObjectMapper mapper = new ObjectMapper();
-                    AptTradeData AptTradeDataJson = null;
-
-                    try {
-                        AptTradeDataJson = mapper.readValue(jsonString, AptTradeData.class);
-                        AptTradeRedisDataJson = mapper.readValue(clonedObject.toString(),AptTradeRedisData.class);              // for redis
-                        apartTradeRedisRepository.save(AptTradeRedisDataJson);
-                    } catch (JsonProcessingException e) {
-                        e.printStackTrace();
-                    }
-                    AptTradeList.add(AptTradeDataJson);
-                });
+                ArrayList<AptTradeData> AptTradeList = itemProcessorForRedis(JsonItemList);
 
                 return AptTradeList;
             }
@@ -167,7 +146,7 @@ public class ApartJobConfiguration {
         return item -> {
 
             // processor 2에 구현한 것을 3으로 내리자
-            //apartTradeRedisRepository.findById()
+            // apartTradeRedisRepository.findById()
             // 리스트를 순회하며 거래 데이터를 redis에서 조회 해오고, redis에 없으면 신규 리스트에 담아 db와 redis에 넣자
             // redis에 데이터가 있다면 cancle_yn을 비교한다
             // redis에 데이터가 있고 cancle_yn 이 다르다면 취소 여부 확인 후 db에 upsert 해준다
@@ -202,5 +181,31 @@ public class ApartJobConfiguration {
                 .build();
     }
 
+    private ArrayList<AptTradeData> itemProcessorForRedis(List<JSONObject> JsonItemList) {
+
+        ArrayList<AptTradeData> AptTradeList = new ArrayList<AptTradeData>();
+
+        JsonItemList.forEach(arrayElement -> {
+            JSONObject clonedObject = new JSONObject(arrayElement, JSONObject.getNames(arrayElement));
+            clonedObject = JsonObjectUtil.getRedisJsonObject(clonedObject);
+
+            arrayElement =  JsonObjectUtil.getTranslatedJsonObject(arrayElement);
+            String jsonString = arrayElement.toString();
+
+            ObjectMapper mapper = new ObjectMapper();
+            AptTradeData AptTradeDataJson = null;
+
+            try {
+                AptTradeDataJson = mapper.readValue(jsonString, AptTradeData.class);
+                AptTradeRedisData AptTradeRedisDataJson = mapper.readValue(clonedObject.toString(),AptTradeRedisData.class);
+                apartTradeRedisRepository.save(AptTradeRedisDataJson);
+            } catch (JsonProcessingException e) {
+                e.printStackTrace();
+            }
+            AptTradeList.add(AptTradeDataJson);
+        });
+
+        return AptTradeList;
+    }
 
 }
