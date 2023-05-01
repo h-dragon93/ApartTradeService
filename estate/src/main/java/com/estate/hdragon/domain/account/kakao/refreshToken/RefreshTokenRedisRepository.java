@@ -18,19 +18,19 @@ public class RefreshTokenRedisRepository {
     }
 
     public void save(final RefreshToken refreshToken) {
-        ValueOperations<String, Long> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(refreshToken.getRefreshToken(), refreshToken.getMemberId());
-        redisTemplate.expire(refreshToken.getRefreshToken(), 600L, TimeUnit.SECONDS);
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+        valueOperations.set(String.valueOf(refreshToken.getMemberId()), refreshToken.getRefreshToken());
+        redisTemplate.expire(refreshToken.getRefreshToken(), 1200L, TimeUnit.SECONDS);
     }
 
     public Optional<RefreshToken> findById(final String refreshToken) {
-        ValueOperations<String, Long> valueOperations = redisTemplate.opsForValue();
-        Long memberId = valueOperations.get(refreshToken);
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+        String memberId = String.valueOf(valueOperations.get(refreshToken));
 
         if (Objects.isNull(memberId)) {
             return Optional.empty();
         }
 
-        return Optional.of(new RefreshToken(refreshToken, memberId));
+        return Optional.of(new RefreshToken(memberId, refreshToken));
     }
 }

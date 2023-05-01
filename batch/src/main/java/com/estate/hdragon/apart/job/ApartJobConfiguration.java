@@ -145,7 +145,6 @@ public class ApartJobConfiguration {
     public ItemProcessor<ArrayList<AptTradeData>, ArrayList<AptTradeData>> processor3() {
         return item -> {
 
-            // processor 2에 구현한 것을 3으로 내리자
             // apartTradeRedisRepository.findById()
             // 리스트를 순회하며 거래 데이터를 redis에서 조회 해오고, redis에 없으면 신규 리스트에 담아 db와 redis에 넣자
             // redis에 데이터가 있다면 cancle_yn을 비교한다

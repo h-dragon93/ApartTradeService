@@ -1,7 +1,6 @@
-package com.estate.hdragon.infra.session;
+package com.estate.hdragon.infra.util;
 
 import com.estate.hdragon.infra.common.CommonConfig;
-import org.springframework.beans.factory.annotation.Value;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpSession;
