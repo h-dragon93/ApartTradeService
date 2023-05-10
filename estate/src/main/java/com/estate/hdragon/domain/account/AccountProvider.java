@@ -1,5 +1,6 @@
 package com.estate.hdragon.domain.account;
 
+import com.estate.hdragon.domain.account.kakao.KakaoAccessToken;
 import com.estate.hdragon.domain.account.kakao.KakaoConfig;
 import com.estate.hdragon.domain.account.kakao.KakaoProfile;
 import com.estate.hdragon.domain.account.kakao.KakaoToken;
@@ -65,7 +66,7 @@ public class AccountProvider {
     }
 
 
-    public KakaoProfile getKakaoProfile(String accessToken){
+    public KakaoProfile getKakaoProfile(String accessToken) throws JsonProcessingException {
 
         RestTemplate rt = new RestTemplate();
         //HttpHeader
@@ -85,13 +86,30 @@ public class AccountProvider {
         );
         // Json Mapping
         ObjectMapper objectMapper = new ObjectMapper();
-        KakaoProfile kakaoProfile = null;
-        try {
-            kakaoProfile = objectMapper.readValue(response2.getBody(),KakaoProfile.class);
-        } catch (JsonProcessingException e) {
-            e.printStackTrace();
-        }
+        KakaoProfile kakaoProfile = objectMapper.readValue(response2.getBody(),KakaoProfile.class);
 
         return kakaoProfile;
+    }
+
+    public KakaoAccessToken getKakaoAccessTokenInfo(String accessToken) throws JsonProcessingException {
+
+        RestTemplate restTemplate = new RestTemplate();
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.add("Authorization", "Bearer " + accessToken);
+
+        HttpEntity<MultiValueMap<String,String>> kakaoAccessTokenRequest = new HttpEntity<>(headers);
+
+        ResponseEntity<String> response = restTemplate.exchange(
+                kakaoConfig.getUserAccessTokenInfo(),
+                HttpMethod.GET,
+                kakaoAccessTokenRequest,
+                String.class
+        );
+
+        ObjectMapper objectMapper = new ObjectMapper();
+        KakaoAccessToken kakaoAccessToken = objectMapper.readValue(response.getBody(),KakaoAccessToken.class);
+
+        return kakaoAccessToken;
     }
 }

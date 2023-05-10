@@ -15,6 +15,7 @@ public class CryptoInfo {
     private CryptoInfo() {
         {
             try {
+                System.out.println("CryptoInfo 생성자");
                 key = AESCryptoUtil.getKey();
                 ivParameterSpec = AESCryptoUtil.getIv();
             } catch (Exception e) {

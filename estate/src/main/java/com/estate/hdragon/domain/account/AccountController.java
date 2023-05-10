@@ -54,12 +54,12 @@ public class AccountController {
         final String responseType = "&response_type=code";
         final String redirectUri = "&redirect_uri=";
         String reqURI = kakaoConfig.getAuthUrl() + kakaoConfig.getUri() + API_KEY + redirectUri + kakaoConfig.getRedirectUrl() + responseType;
-
+                        // https://kauth.kakao.com/oauth/authorize?client_id=     /login/oauth/kakao
         return reqURI;
     }
 
     // 카카오 연동정보 조회
-    // 로그인 세션이 있는 경우 /getKakaoAuthCode를 안거치고 여기로 바로 들어온다
+    // 브라우저에 카카오계정 로그인 세션이 있는 경우 /getKakaoAuthCode를 안거치고 여기로 바로 들어온다 (redirectUri)
     //@Cacheable(value="RefreshToken", cacheManager = "redisCacheManager")
     @GetMapping(value = "/oauth/kakao")
     public String oauthKakao(HttpServletRequest request, HttpServletResponse response, HttpSession session) throws Exception {
@@ -80,7 +80,7 @@ public class AccountController {
 
             RefreshToken refreshToken = new RefreshToken(String.valueOf(kakaoUniqueId),kakaoToken.getRefresh_token());     // 리프레시 토큰 생성
             refreshTokenRedisRepository.save(refreshToken);                                                 // Redis 저장
-
+            System.out.println("refreshToken : " + refreshToken.getRefreshToken());
             // session and cookie
             session.setAttribute(CommonConfig.USER_SESSION_ID, kakaoToken.getRefresh_token());
             Cookie accessCookie = new Cookie("accessCookie", "");
