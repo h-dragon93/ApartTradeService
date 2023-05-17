@@ -26,7 +26,7 @@ public class CookieUtil {
         String encryptedText = AESCryptoUtil.encrypt(AESCryptoUtil.SPEC_NAME, CryptoInfo.getInstance().getKey(), CryptoInfo.getInstance().getIvParameterSpec(), cookieValue);
 
         accessCookie.setValue(encryptedText);
-        accessCookie.setMaxAge(600);
+        accessCookie.setMaxAge(43200);
         accessCookie.setHttpOnly(true);
         accessCookie.setSecure(true);
         accessCookie.setPath("/");

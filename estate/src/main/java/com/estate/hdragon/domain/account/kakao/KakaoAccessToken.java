@@ -14,4 +14,5 @@ public class KakaoAccessToken {
     private int expiresInMillis;
     private int app_id;
     private int appId;
+    private int httpStatusCode;
 }

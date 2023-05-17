@@ -10,10 +10,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.*;
 import org.springframework.stereotype.Component;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -107,9 +104,14 @@ public class AccountProvider {
                 String.class
         );
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        KakaoAccessToken kakaoAccessToken = objectMapper.readValue(response.getBody(),KakaoAccessToken.class);
-
-        return kakaoAccessToken;
+        KakaoAccessToken kakaoAccessToken = new KakaoAccessToken();
+        if (response.getStatusCode() == HttpStatus.UNAUTHORIZED) { // accessToken 만료 시 401 오류
+            kakaoAccessToken.setHttpStatusCode(HttpStatus.UNAUTHORIZED.value());
+        } else {
+            ObjectMapper objectMapper = new ObjectMapper();
+            kakaoAccessToken = objectMapper.readValue(response.getBody(),KakaoAccessToken.class);
+            kakaoAccessToken.setHttpStatusCode(HttpStatus.OK.value());
+        }
+            return kakaoAccessToken;
     }
 }

@@ -68,21 +68,18 @@ public class AccountController {
         KakaoToken kakaoToken = accountProvider.getKakaoToken(request, request.getParameter("code")); // 카카오로그인 토큰
         KakaoProfile kakaoProfile = accountProvider.getKakaoProfile(kakaoToken.getAccess_token());  // 카카오로그인 계정정보
         Long kakaoUniqueId= kakaoProfile.getId();
-
         if (kakaoUniqueId != null && !kakaoUniqueId.equals("")) {
 
             Optional<Account> account =  accountService.getAccountByKakaoUID(kakaoUniqueId);        // DB 회원정보 조회
-            if (!account.isPresent()) { // DB에 kakao UID가 없으면 자동 회원가입
+            if (!account.isPresent()) {                                                             // DB에 kakao UID가 없으면 자동 회원가입
                 Account newAccount = makeNewAccount(kakaoProfile, kakaoUniqueId);
                 accountService.saveAccount(newAccount);
                 account =  accountService.getAccountByKakaoUID(kakaoUniqueId);
             } // To-Do  else {  이미 등록된 kakao unique ID 이면  }
 
             RefreshToken refreshToken = new RefreshToken(String.valueOf(kakaoUniqueId),kakaoToken.getRefresh_token());     // 리프레시 토큰 생성
-            refreshTokenRedisRepository.save(refreshToken);                                                 // Redis 저장
-            System.out.println("refreshToken : " + refreshToken.getRefreshToken());
-            // session and cookie
-            session.setAttribute(CommonConfig.USER_SESSION_ID, kakaoToken.getRefresh_token());
+            refreshTokenRedisRepository.save(refreshToken);                                                                // Redis 저장
+
             Cookie accessCookie = new Cookie("accessCookie", "");
             accessCookie = CookieUtil.makeKakaoAccessCookie(accessCookie, kakaoUniqueId, kakaoToken.getAccess_token());
             response.addCookie(accessCookie);
@@ -98,11 +95,11 @@ public class AccountController {
         String kakaoEmail = kakaoProfile.getKakao_account().getEmail();
         String kakaoNickname = kakaoProfile.getProperties().getNickname();
         Account newAccount = Account.builder()
-                .id(kakaoUniqueId)
-                .email(kakaoEmail)
-                .nickname(kakaoNickname)
-                .createdDate(LocalDate.now())
-                .build();
+                                    .id(kakaoUniqueId)
+                                    .email(kakaoEmail)
+                                    .nickname(kakaoNickname)
+                                    .createdDate(LocalDate.now())
+                                    .build();
 
         return newAccount;
     }
