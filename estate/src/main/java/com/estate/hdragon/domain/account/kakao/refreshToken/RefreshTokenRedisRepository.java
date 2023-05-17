@@ -1,5 +1,7 @@
 package com.estate.hdragon.domain.account.kakao.refreshToken;
 
+import com.estate.hdragon.domain.account.kakao.KakaoAccessToken;
+import com.estate.hdragon.domain.account.kakao.KakaoToken;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.stereotype.Repository;
@@ -17,10 +19,16 @@ public class RefreshTokenRedisRepository {
         this.redisTemplate = redisTemplate;
     }
 
+    public void save(final KakaoToken kakaoToken, Long kakaoUid) {
+        ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
+        valueOperations.set("accessToken:"+kakaoUid, kakaoToken.getAccess_token());
+        redisTemplate.expire("accessToken:"+kakaoUid, 40L, TimeUnit.SECONDS);
+    }
+
     public void save(final RefreshToken refreshToken) {
         ValueOperations<String, String> valueOperations = redisTemplate.opsForValue();
-        valueOperations.set(String.valueOf(refreshToken.getMemberId()), refreshToken.getRefreshToken());
-        redisTemplate.expire(String.valueOf(refreshToken.getMemberId()), 12L, TimeUnit.SECONDS);
+        valueOperations.set("refreshToken:"+refreshToken.getMemberId(), refreshToken.getRefreshToken());
+        redisTemplate.expire("refreshToken:"+refreshToken.getMemberId(), 80L, TimeUnit.SECONDS);
     }
 
     public Optional<RefreshToken> findById(final String refreshToken) {

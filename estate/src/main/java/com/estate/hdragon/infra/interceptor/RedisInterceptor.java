@@ -37,33 +37,20 @@ public class RedisInterceptor implements HandlerInterceptor {
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
 
         String idAccessToken = CookieUtil.getAccessTokenFromCookie(request);
-        if(idAccessToken != null && !idAccessToken.isEmpty()) {         // accessToken이 있으면
+        if(idAccessToken != null && !idAccessToken.isEmpty()) {         // accessToken 쿠키가 있으면
             String decryptedText = AESCryptoUtil.decrypt(AESCryptoUtil.SPEC_NAME, CryptoInfo.getInstance().getKey(), CryptoInfo.getInstance().getIvParameterSpec(), idAccessToken);
             String[] decrypted = decryptedText.split("\\|");
+            String kakaoUniqueId = decrypted[0];
             String accessToken = decrypted[1];
             KakaoAccessToken kakaoAccessToken = getKakaoAccessTokenInfo(accessToken);
 
             if(kakaoAccessToken.getHttpStatusCode() == HttpStatus.UNAUTHORIZED.value()) { // kakao access token 만료
-
+                System.out.println("액세스 토큰 만료 확인"); // 액세스 토큰 만료지만 리프레시 토큰 살아있는 경우 액세스 토큰 재발급
             }
-            // 카카오 id 추출
-            String kakaoUniqueId = decrypted[0];
-            System.out.println("http status code : " + kakaoAccessToken.getHttpStatusCode());
-            System.out.println("decryptedText : " + decryptedText);
-            System.out.println("kakaoUniqueId : " + kakaoUniqueId + " \naccessToken : " + accessToken);
-            System.out.println("kakaoAccessToken getId : " + kakaoAccessToken.getId());
-            System.out.println("kakaoAccessToken getApp_id : " + kakaoAccessToken.getApp_id());
-            System.out.println("kakaoAccessToken getExpires_in : " + kakaoAccessToken.getExpires_in());
-            // 액세스 토큰이 있으면
-        } else {        // accessToken 이 없으면 Redis에서 refreshToken 검증
-            //Optional<RefreshToken> refreshToken = refreshTokenRedisRepository.findById((String) HttpSessionUtil.getSession(request).getAttribute(CommonConfig.USER_SESSION_ID));
-        }
 
-//        if (HttpSessionUtil.isLogin(HttpSessionUtil.getSession(request))) {
-//            String redisId = (String) HttpSessionUtil.getSession(request).getAttribute(CommonConfig.USER_SESSION_ID);
-//            Optional<RefreshToken> refreshToken = refreshTokenRedisRepository.findById((String) HttpSessionUtil.getSession(request).getAttribute(CommonConfig.USER_SESSION_ID));
-//            return true;
-//        }
+        } else {        // accessToken 쿠키가 없으면 Redis에서 refreshToken 검증
+
+        }
 
         System.out.println("Not Logined");
         return true;
