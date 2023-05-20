@@ -66,27 +66,31 @@ public class AccountController {
 
         ifErrorRedirectLogin(request);  // 카카오로그인 페이지에서 에러 발생한 경우 리다이렉트
         KakaoToken kakaoToken = accountProvider.getKakaoToken(request, request.getParameter("code")); // 카카오로그인 토큰
-        KakaoProfile kakaoProfile = accountProvider.getKakaoProfile(kakaoToken.getAccess_token());  // 카카오로그인 계정정보
+        KakaoProfile kakaoProfile = accountProvider.getKakaoProfile(kakaoToken.getAccess_token());          // 카카오로그인 계정정보
         Long kakaoUniqueId= kakaoProfile.getId();
         if (kakaoUniqueId != null && !kakaoUniqueId.equals("")) {
-            Optional<Account> account =  accountService.getAccountByKakaoUID(kakaoUniqueId);        // DB 회원정보 조회
-            if (!account.isPresent()) {                                                             // DB에 kakao UID가 없으면 자동 회원가입
+            Optional<Account> account =  accountService.getAccountByKakaoUID(kakaoUniqueId);                // DB 회원정보 조회
+            if (!account.isPresent()) {                                                                     // DB에 kakao UID가 없으면 자동 회원가입
                 Account newAccount = makeNewAccount(kakaoProfile, kakaoUniqueId);
                 accountService.saveAccount(newAccount);
                 account =  accountService.getAccountByKakaoUID(kakaoUniqueId);
-            } // To-Do  else {  이미 등록된 kakao unique ID 이면  }
-            refreshTokenRedisRepository.save(kakaoToken, account.get().getId());
+            }
+            refreshTokenRedisRepository.save(kakaoToken, account.get().getId());                            // access 토큰 Redis 저장
             RefreshToken refreshToken = new RefreshToken(String.valueOf(kakaoUniqueId),kakaoToken.getRefresh_token());     // 리프레시 토큰 생성
-            refreshTokenRedisRepository.save(refreshToken);
+            refreshTokenRedisRepository.save(refreshToken);                                                 // refresh 토큰 Redis 저장
 
-            Cookie accessCookie = new Cookie("accessCookie", "");
-            accessCookie = CookieUtil.makeKakaoAccessCookie(accessCookie, kakaoUniqueId, kakaoToken.getAccess_token());
-            response.addCookie(accessCookie);
+            addAccessCookie(kakaoUniqueId, kakaoToken.getAccess_token(), response);
 
             return "redirect:/";
 
         }   else {  return "error";}//  To-Do 카카오톡 정보조회 실패했을 경우 throw new ErrorMessage("카카오톡 정보조회에 실패했습니다.");
 
+    }
+
+    private void addAccessCookie(Long kakaoUniqueId, String kakaoAccessToken, HttpServletResponse response) throws Exception {
+            Cookie accessCookie = new Cookie("accessCookie", "");
+            accessCookie = CookieUtil.makeKakaoAccessCookie(accessCookie, kakaoUniqueId, kakaoAccessToken);
+            response.addCookie(accessCookie);
     }
 
     private Account makeNewAccount(KakaoProfile kakaoProfile, Long kakaoUniqueId) {
